@@ -3,10 +3,12 @@ package net.dbyte.cursomc.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import net.dbyte.cursomc.domain.Categoria;
 import net.dbyte.cursomc.repositories.CategoriaRepository;
+import net.dbyte.cursomc.resources.exception.DataIntegrityException;
 import net.dbyte.cursomc.resources.exception.ObjectNotFoundException;
 
 @Service
@@ -29,5 +31,15 @@ public class CategoriaService {
 	public Categoria update(Categoria obj) {
 		find(obj.getId());
 		return repo.save(obj);
+	}
+	
+	public void delete(Integer id) {
+		find(id);
+		try {
+			repo.deleteById(id);
+		}
+		catch(DataIntegrityViolationException e) {
+			throw new DataIntegrityException("Não é possível excluir uma categoria que possui produtos!");	
+		}
 	}
 }
