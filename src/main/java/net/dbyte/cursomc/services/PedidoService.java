@@ -1,8 +1,6 @@
 package net.dbyte.cursomc.services;
 
-import java.text.NumberFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 import net.dbyte.cursomc.domain.ItemPedido;
 import net.dbyte.cursomc.domain.PagamentoComBoleto;
 import net.dbyte.cursomc.domain.Pedido;
-import net.dbyte.cursomc.domain.Produto;
 import net.dbyte.cursomc.domain.enums.EstadoPagamento;
 import net.dbyte.cursomc.repositories.ItemPedidoRepository;
 import net.dbyte.cursomc.repositories.PagamentoRepository;
@@ -42,6 +39,9 @@ public class PedidoService {
 	@Autowired
 	private ClienteService clienteService;
 	
+	@Autowired
+	private EmailService emailService;
+	
 	public Pedido find(Integer id) {
 		Optional<Pedido> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! Id: " +
@@ -68,7 +68,7 @@ public class PedidoService {
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.saveAll(obj.getItens());
-		System.out.println(obj);
+		emailService.sendOrderConfirmationEmail(obj);
 		return obj;
 	}
 }
