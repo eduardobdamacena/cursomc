@@ -1,6 +1,8 @@
 package net.dbyte.cursomc.services;
 
+import java.text.NumberFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -37,6 +39,9 @@ public class PedidoService {
 	@Autowired
 	private ItemPedidoRepository itemPedidoRepository;
 	
+	@Autowired
+	private ClienteService clienteService;
+	
 	public Pedido find(Integer id) {
 		Optional<Pedido> obj = repo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! Id: " +
@@ -44,9 +49,10 @@ public class PedidoService {
 	}
 	
 	@Transactional
-	public Pedido insert(Pedido obj) {
+	public Pedido insert(Pedido obj) {		
 		obj.setId(null);
 		obj.setInstante(new Date());
+		obj.setCliente(clienteService.find(obj.getCliente().getId()));
 		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
 		obj.getPagamento().setPedido(obj);
 		if(obj.getPagamento() instanceof PagamentoComBoleto) {
@@ -57,11 +63,12 @@ public class PedidoService {
 		pagamentoRepository.save(obj.getPagamento());
 		for(ItemPedido ip : obj.getItens()) {
 			ip.setDesconto(0.00);
-			Optional<Produto> produto = produtoRepository.findById(ip.getProduto().getId());
-			ip.setPreco(produto.get().getPreco());
+			ip.setProduto(produtoRepository.findById(ip.getProduto().getId()).get());
+			ip.setPreco(ip.getProduto().getPreco());
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.saveAll(obj.getItens());
+		System.out.println(obj);
 		return obj;
 	}
 }
