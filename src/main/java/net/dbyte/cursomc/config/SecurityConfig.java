@@ -1,6 +1,5 @@
 package net.dbyte.cursomc.config;
 
-
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private static final String [] PUBLIC_MATCHERS_GET = {
 			"/produtos/**",
-			"/categorias/**"
+			"/categorias/**",
+			"/clientes/**"
 		};
 	
 	@Override
